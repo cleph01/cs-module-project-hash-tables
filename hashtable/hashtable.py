@@ -19,10 +19,12 @@ class HashTable:
 
     Implement this.
     """
+    
 
     def __init__(self, capacity):
         # Your code here
-
+        self.capacity = capacity
+        self.hash_table = [None] * self.capacity
 
     def get_num_slots(self):
         """
@@ -35,6 +37,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        return self.capacity
 
 
     def get_load_factor(self):
@@ -62,7 +65,11 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
+        hash = 5381
+
+        for c in key:
+            hash = (hash * 33) + ord(c)
+        return hash
 
 
     def hash_index(self, key):
@@ -81,7 +88,15 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        # hash the key and get an index
+        i = self.hash_index(key)
+        # Check if something already exists at that index
+        if self.hash_table[i] != None:
+            print(f"Collision! Overwriting {repr(self.hash_table[i])}!")
+
+        # Store the value in the array at the hashed index
+        self.hash_table[i] = value
+
 
 
     def delete(self, key):
@@ -92,7 +107,13 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        # hash the key and get an index
+        i = self.hash_index(key)
+        # Check if Key is missing at that index
+        if self.hash_table[i] is None:
+            print(f"Key Not Found!")
+        else:
+            self.hash_table[i] = None
 
 
     def get(self, key):
@@ -103,7 +124,10 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        # hash the key and get an index
+        i = self.hash_index(key)
+        # Return the value from the array at the index
+        return self.hash_table[i]
 
 
     def resize(self, new_capacity):
