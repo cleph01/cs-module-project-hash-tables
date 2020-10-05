@@ -7,44 +7,6 @@ class HashTableEntry:
         self.value = value
         self.next = None
     
-    def get_value(self):
-        return self.value
-
-    def get_next(self):
-        return self.next
-
-    def set_next(self, new_next):
-        self.next = new_next
-
-
-class LinkedList:
-    def __init__(self):
-        self.head = None
-
-    def add_to_head(self, value):
-        node = HashTableEntry(key, value)
-
-        if self.head is not None:
-            node.set_next(self.head)
-
-        self.head = node
-
-    def contains(self, value):
-        if not self.head:
-            return False
-
-        current = self.head
-
-        while current:
-            if current.get_value() == value:
-                return True
-
-            current = current.get_next()
-
-        return False
-
-    
-
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -62,7 +24,8 @@ class HashTable:
     def __init__(self, capacity):
         # Your code here
         self.capacity = capacity
-        self.hash_table = [None] * self.capacity
+        self.hash_table = [None] * capacity
+        self.num_elements = 0
 
     def get_num_slots(self):
         """
@@ -85,6 +48,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # number of items / num_slots
+        return self.num_elements / self.capacity
 
 
     def fnv1(self, key):
@@ -128,14 +93,50 @@ class HashTable:
         """
         # hash the key and get an index
         i = self.hash_index(key)
+
         # Check if something already exists at that index
         if self.hash_table[i] != None:
-            print(f"Collision! Overwriting {repr(self.hash_table[i])}!")
+            # print(f"Collision! Overwriting {repr(self.hash_table[i])}!")
 
-        # Store the value in the array at the hashed index
-        self.hash_table[i] = value
+            current_node = self.hash_table[i]
 
+            while current_node is not None:
 
+                # Check if it is a duplicate key and overwrite if nececessary
+                if current_node.key == key :
+
+                    current_node.value = value
+
+                # otherwise check if next node is empty and place new value there
+                elif current_node.next is None:
+
+                    new_node = HashTableEntry(key, value)
+
+                    current_node.next = new_node
+
+                    # increment number of elements
+                    self.num_elements += 1
+
+                    print(f"Taken Node: {new_node.key, new_node.value}!")
+
+                    print(f"Num elements: {self.num_elements}")
+
+                # otherwise, go to the next node
+                current_node = current_node.next
+        
+        else: 
+            
+            self.hash_table[i] = HashTableEntry(key, value)
+
+             # increment number of elements
+            self.num_elements += 1
+
+            print(f"New Node: {key, value}!")
+
+            print(f"Num elements: {self.num_elements}")
+
+                
+            
 
     def delete(self, key):
         """
@@ -164,8 +165,21 @@ class HashTable:
         """
         # hash the key and get an index
         i = self.hash_index(key)
+        
         # Return the value from the array at the index
-        return self.hash_table[i]
+        # return self.hash_table[i]
+
+        current_node = self.hash_table[i]
+    
+        while current_node is not None:
+            # check if this is the node we are looking for
+            if current_node.key == key:
+                return current_node.value
+    
+            # otherwise, go to the next node
+            current_node = current_node.next
+
+        return None 
 
 
     def resize(self, new_capacity):
@@ -176,6 +190,14 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        new_ht = HashTable(new_capacity)
+
+        # Rehashing
+        for i in range(1, self.num_elements):
+            
+            new_ht.put("line_{i}", ht.get(f"line_{i}"))
+
+        return new_ht
 
 
 
@@ -199,7 +221,7 @@ if __name__ == "__main__":
 
     # Test storing beyond capacity
     for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
+        print(ht.get(f"line_{i}"), f" - Line{i}")
 
     # Test resizing
     old_capacity = ht.get_num_slots()
@@ -210,6 +232,6 @@ if __name__ == "__main__":
 
     # Test if data intact after resizing
     for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
+        print(ht.get(f"line_{i}"), f" - what the")
 
     print("")
